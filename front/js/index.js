@@ -20,18 +20,9 @@ async function fetchTodos() {
         });
     } catch (err) {
         console.error(err);
-        alert("Failed to load todos");
+        alert(err);
     }
 }
-
-window.deleteTodo = async function(id) {
-    await fetch(`${API_BASE}/todoList/delete/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-    });
-    fetchTodos();
-};
-
 
 async function addTodo(title) {
     await fetch(`${API_BASE}/todoList/add`, {
@@ -42,6 +33,13 @@ async function addTodo(title) {
     fetchTodos();
 }
 
+window.deleteTodo = async function(id) {
+    await fetch(`${API_BASE}/todoList/delete/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders()
+    });
+    fetchTodos();
+};
 
 async function clearTodos() {
     await fetch(`${API_BASE}/todoList/clear`, {
@@ -51,14 +49,23 @@ async function clearTodos() {
     fetchTodos();
 }
 
+
+
+
 //helper function to get the token 
 function getAuthHeaders() {
     const token = localStorage.getItem("token");
+    if (!token) {
+        // Redirect to login if no token
+        window.location.href = "/login.html"; 
+        throw new Error("No token, redirecting to login");
+    }
     return {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
     };
 }
+
 
 
 addTodoForm.addEventListener("submit", e => {
