@@ -7,7 +7,9 @@ const clearAllBtn = document.getElementById("clearAll");
 
 async function fetchTodos() {
     try {
-        const res = await fetch(`${API_BASE}/todoList`, { credentials: "include" });
+        const res = await fetch(`${API_BASE}/todoList`, {
+            headers: getAuthHeaders()
+        });
         const data = await res.json();
         todoListEl.innerHTML = "";
         data.forEach(todo => {
@@ -25,28 +27,39 @@ async function fetchTodos() {
 window.deleteTodo = async function(id) {
     await fetch(`${API_BASE}/todoList/delete/${id}`, {
         method: "DELETE",
-        credentials: "include"
+        headers: getAuthHeaders()
     });
     fetchTodos();
 };
 
+
 async function addTodo(title) {
     await fetch(`${API_BASE}/todoList/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
-        credentials: "include"
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ title })
     });
     fetchTodos();
 }
 
+
 async function clearTodos() {
     await fetch(`${API_BASE}/todoList/clear`, {
         method: "DELETE",
-        credentials: "include"
+        headers: getAuthHeaders()
     });
     fetchTodos();
 }
+
+//helper function to get the token 
+function getAuthHeaders() {
+    const token = localStorage.getItem("token");
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+    };
+}
+
 
 addTodoForm.addEventListener("submit", e => {
     e.preventDefault();
@@ -55,6 +68,8 @@ addTodoForm.addEventListener("submit", e => {
 });
 
 clearAllBtn.addEventListener("click", clearTodos);
+
+
 
 // Load todos initially
 fetchTodos();
